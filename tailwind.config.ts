@@ -7,6 +7,7 @@ export default {
     extend: {
       fontFamily: {
         sans: [
+          "Mochiy Pop P One",
           "Noto Sans JP",
           "ui-sans-serif",
           "system-ui",

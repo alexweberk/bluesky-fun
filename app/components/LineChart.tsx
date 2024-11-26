@@ -89,7 +89,7 @@ export function LineChartComponent({
       <CardHeader>
         <CardTitle>
           Follows & Followers Growth for{" "}
-          <span className="underline">{actor}</span>
+          <span className="font-bold text-primary">{actor}</span>
         </CardTitle>
         <CardDescription>Monthly Growth Trend</CardDescription>
       </CardHeader>

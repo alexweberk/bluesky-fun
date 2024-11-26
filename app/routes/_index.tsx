@@ -138,35 +138,35 @@ export default function Index() {
           <h1 className="text-4xl font-bold text-gray-900 mb-6">
             Bluesky Stats
           </h1>
-          <div className="bg-white rounded-lg shadow-sm space-y-4">
+          <div className="bg-white rounded-lg shadow-sm space-y-8">
             <h2 className="text-xl font-semibold mb-4">
               Follower and Following Stats
             </h2>
-            <div>
+            <div id="actor-form">
               <fetcher.Form method="post">
-                <div className="flex w-full max-w-sm items-center space-x-2">
+                <div className="flex w-full max-w-md items-center space-x-2 mx-auto justify-center">
                   <div className="relative flex-1">
-                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-900 ">
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 font-bold">
                       @
                     </span>
                     <Input
                       type="text"
                       name="actor"
-                      className="border-primary border-2 transition-all hover:bg-white pl-8"
-                      placeholder={currentActor}
+                      className="border-primary border-2 transition-all hover:bg-white pl-8 h-12"
+                      placeholder="What's your Bluesky handle?"
                       defaultValue={currentActor}
                     />
                   </div>
                   <Button
                     type="submit"
                     variant="outline"
-                    className="flex items-center border-primary border-2 border-b-4 active:border-b-2 transition-all hover:bg-white"
+                    className="flex items-center border-primary border-2 border-b-4 active:border-b-2 transition-all hover:bg-white h-12 justify-center"
                     disabled={fetcher.state === "submitting"}
                   >
                     {fetcher.state === "submitting" ? (
                       <Loader2Icon className="w-4 h-4 animate-spin" />
                     ) : (
-                      "Submit"
+                      "Check it out!"
                     )}
                   </Button>
                 </div>
