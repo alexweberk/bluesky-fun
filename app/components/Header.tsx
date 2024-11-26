@@ -19,7 +19,7 @@ export default function Header() {
               className="flex items-center"
             >
               <span className="text-xl font-bold text-primary">
-                Bluesky Stats
+                Bluesky Fun
               </span>
             </Link>
           </div>

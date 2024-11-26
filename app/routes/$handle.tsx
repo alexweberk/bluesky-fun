@@ -228,8 +228,8 @@ export default function UserStats() {
           ) : (
             <>
               <h1 className="text-4xl font-bold text-gray-900 mb-6 text-center">
-                Follower and Following Stats for <br />
-                <span className="text-primary">{actor}</span>
+                Follower Stats for <br />
+                <span className="text-primary text-2xl">{actor}</span>
               </h1>
               {Object.keys(followerStats).length === 0 &&
               Object.keys(followStats).length === 0 ? (

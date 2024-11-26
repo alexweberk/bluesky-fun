@@ -97,10 +97,10 @@ export function LineChartComponent({
             accessibilityLayer
             data={chartData}
             margin={{
-              left: 12,
-              right: 12,
-              top: 12,
-              bottom: 12,
+              left: 6,
+              right: 6,
+              top: 6,
+              bottom: 6,
             }}
           >
             <CartesianGrid
