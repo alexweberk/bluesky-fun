@@ -1,6 +1,6 @@
 import type { MetaFunction } from "@remix-run/cloudflare";
 import { Form, useNavigation } from "@remix-run/react";
-import { Loader2 } from "lucide-react";
+import { ChartColumnIncreasing, Loader2 } from "lucide-react";
 import { useState } from "react";
 import Footer from "~/components/Footer";
 import Header from "~/components/Header";
@@ -65,7 +65,10 @@ export default function Index() {
                 {navigation.state !== "idle" ? (
                   <Loader2 className="animate-spin" />
                 ) : (
-                  "View Stats"
+                  <>
+                    <ChartColumnIncreasing className="w-4 h-4" />
+                    View Stats
+                  </>
                 )}
               </Button>
             </Form>
