@@ -78,8 +78,6 @@ export function LineChartComponent({
     }>
   );
 
-  console.log("chartData", chartData);
-
   const currentMonth = chartData[chartData.length - 1]?.followersChange ?? 0;
   const isPositiveTrend = currentMonth > 0;
   const trendText = Math.abs(currentMonth).toString();

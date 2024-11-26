@@ -16,6 +16,7 @@
   },
   "dependencies": {
     "@atproto/api": "^0.13.18",
+    "@radix-ui/react-popover": "^1.1.2",
     "@radix-ui/react-slot": "^1.1.0",
     "@remix-run/cloudflare": "^2.14.0",
     "@remix-run/cloudflare-pages": "^2.14.0",
