@@ -1,5 +1,5 @@
 #:schema node_modules/wrangler/config-schema.json
-name = "bluesky-fun"
+name = "<your-project-name>"
 compatibility_date = "2024-11-12"
 pages_build_output_dir = "./build/client"
 
@@ -41,8 +41,8 @@ pages_build_output_dir = "./build/client"
 # Bind a KV Namespace. Use KV as persistent storage for small key-value pairs.
 # Docs: https://developers.cloudflare.com/pages/functions/bindings/#kv-namespaces
 [[kv_namespaces]]
-binding = "BLUESKY_STATS_KV"
-id = "efd1d7149bb249e4b6ef3000de86fc09"
+binding = "<your-kv-namespace-binding>"
+id = "<your-kv-namespace-id>"
 
 # Bind a Queue producer. Use this binding to schedule an arbitrary task that may be processed later by a Queue consumer.
 # Docs: https://developers.cloudflare.com/pages/functions/bindings/#queue-producers
