@@ -3,5 +3,5 @@
 interface Env {
   BLUESKY_USERNAME: string;
   BLUESKY_PASSWORD: string;
-  BLUESKY_STATS_KV: KVNamespace;
+  BLUESKY_FUN_KV: KVNamespace;
 }
