@@ -6,15 +6,12 @@ export interface CacheData {
   timestamp: number;
 }
 
-export interface CloudflareEnv {
-  BLUESKY_FUN_KV: KVNamespace;
-}
-
 export const CACHE_DURATION = 60 * 60; // 1 hour in seconds
+const LIKES_KEY = "project_likes";
 
 export async function getCachedStats(
   actor: string,
-  env: CloudflareEnv
+  env: Env
 ): Promise<CacheData | null> {
   try {
     const cacheKey = `stats-${actor}`;
@@ -39,7 +36,7 @@ export async function getCachedStats(
 export async function setCachedStats(
   actor: string,
   data: { followerStats: MonthlyData; followStats: MonthlyData },
-  env: CloudflareEnv
+  env: Env
 ): Promise<void> {
   try {
     const cacheKey = `stats-${actor}`;
@@ -50,5 +47,27 @@ export async function setCachedStats(
     await env.BLUESKY_FUN_KV.put(cacheKey, JSON.stringify(cacheData));
   } catch (error) {
     console.error("Cache write error:", error);
+  }
+}
+
+export async function getLikesCount(env: Env): Promise<number> {
+  try {
+    const count = await env.BLUESKY_FUN_KV.get(LIKES_KEY);
+    return count ? parseInt(count) : 0;
+  } catch (error) {
+    console.error("Error getting likes count:", error);
+    return 0;
+  }
+}
+
+export async function incrementLikes(env: Env): Promise<number | null> {
+  try {
+    const currentCount = await getLikesCount(env);
+    const newCount = currentCount + 1;
+    await env.BLUESKY_FUN_KV.put(LIKES_KEY, newCount.toString());
+    return newCount;
+  } catch (error) {
+    console.error("Error incrementing likes:", error);
+    return null;
   }
 }

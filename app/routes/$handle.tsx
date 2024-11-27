@@ -1,8 +1,7 @@
 import type { LoaderFunctionArgs, MetaFunction } from "@remix-run/cloudflare";
 import { useLoaderData } from "@remix-run/react";
+import { ExternalLink } from "lucide-react";
 import { ErrorMessageBox } from "~/components/ErrorMessageBox";
-import Footer from "~/components/Footer";
-import Header from "~/components/Header";
 import { LineChartComponent } from "~/components/LineChart";
 import { SearchForm } from "~/components/SearchForm";
 import StatsBox from "~/components/StatsBox";
@@ -111,60 +110,57 @@ export default function UserStats() {
     Object.keys(followStats).length > 0;
 
   return (
-    <div className="min-h-screen">
-      <Header />
-      <div className="container mx-auto px-4 py-8">
-        <div className="max-w-4xl mx-auto">
-          <div>
-            <h1 className="text-4xl font-bold text-gray-900 mb-6 text-center">
-              Follower Stats for <br />
-              <span className="text-primary text-2xl">
-                <a
-                  href={`https://bsky.app/profile/${actor}`}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="hover:text-3xl transition-all duration-300"
-                >
-                  {actor}
-                </a>
-              </span>
-            </h1>
-            <div className="max-w-lg mx-auto mb-8 flex flex-col">
-              <SearchForm initialHandle={actor || ""} />
-            </div>
-            {error && <ErrorMessageBox error={error} />}
-            {!error && !hasStats && <WarningMessageBox />}
-
-            {hasStats && (
-              <div id="statsArea">
-                <div className="bg-white rounded-lg shadow-sm space-y-8">
-                  {cached && (
-                    <div className="text-sm text-gray-500 text-center mb-4">
-                      Showing cached data (updated within the last hour)
-                    </div>
-                  )}
-                  <LineChartComponent
-                    actor={actor}
-                    followerStats={followerStats}
-                    followStats={followStats}
-                  />
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
-                  <StatsBox
-                    title="Following by Month"
-                    stats={followStats}
-                  />
-                  <StatsBox
-                    title="Followers by Month"
-                    stats={followerStats}
-                  />
-                </div>
-              </div>
-            )}
+    <div className="container mx-auto px-4 py-8">
+      <div className="max-w-4xl mx-auto">
+        <div>
+          <h1 className="text-4xl font-bold text-gray-900 mb-6 text-center">
+            Follower Stats for <br />
+            <span className="text-primary text-2xl">
+              <a
+                href={`https://bsky.app/profile/${actor}`}
+                target="_blank"
+                rel="noreferrer"
+                className="hover:text-3xl transition-all duration-300"
+              >
+                {actor}
+                <ExternalLink className="w-4 h-4 ml-2 inline" />
+              </a>
+            </span>
+          </h1>
+          <div className="max-w-lg mx-auto mb-8 flex flex-col">
+            <SearchForm initialHandle={actor || ""} />
           </div>
+          {error && <ErrorMessageBox error={error} />}
+          {!error && !hasStats && <WarningMessageBox />}
+
+          {hasStats && (
+            <div id="statsArea">
+              <div className="bg-white rounded-lg shadow-sm space-y-8">
+                {cached && (
+                  <div className="text-sm text-gray-500 text-center mb-4">
+                    Showing cached data (updated within the last hour)
+                  </div>
+                )}
+                <LineChartComponent
+                  actor={actor}
+                  followerStats={followerStats}
+                  followStats={followStats}
+                />
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                <StatsBox
+                  title="Following by Month"
+                  stats={followStats}
+                />
+                <StatsBox
+                  title="Followers by Month"
+                  stats={followerStats}
+                />
+              </div>
+            </div>
+          )}
         </div>
       </div>
-      <Footer />
     </div>
   );
 }

@@ -1,12 +1,21 @@
-import type { LinksFunction } from "@remix-run/cloudflare";
+import type {
+  ActionFunction,
+  LinksFunction,
+  LoaderFunction,
+} from "@remix-run/cloudflare";
+import { json } from "@remix-run/cloudflare";
 import {
   Links,
   Meta,
   Outlet,
   Scripts,
   ScrollRestoration,
+  useLoaderData,
 } from "@remix-run/react";
+import Header from "~/components/Header";
+import { getLikesCount, incrementLikes } from "~/lib/cacheHandler";
 
+import Footer from "./components/Footer";
 import "./globals.css";
 
 export const links: LinksFunction = () => [
@@ -22,7 +31,21 @@ export const links: LinksFunction = () => [
   },
 ];
 
-export function Layout({ children }: { children: React.ReactNode }) {
+export const loader: LoaderFunction = async ({ context }) => {
+  const { env } = context.cloudflare;
+  const likesCount = await getLikesCount(env);
+  return json({ likesCount });
+};
+
+export const action: ActionFunction = async ({ context }) => {
+  const { env } = context.cloudflare;
+  const newCount = await incrementLikes(env);
+  return json({ likesCount: newCount });
+};
+
+export default function App() {
+  const { likesCount } = useLoaderData<{ likesCount: number }>();
+
   return (
     <html lang="en">
       <head>
@@ -35,14 +58,12 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <Links />
       </head>
       <body>
-        {children}
+        <Header likesCount={likesCount} />
+        <Outlet />
+        <Footer />
         <ScrollRestoration />
         <Scripts />
       </body>
     </html>
   );
-}
-
-export default function App() {
-  return <Outlet />;
 }
