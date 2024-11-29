@@ -1,5 +1,7 @@
 import { TrendingUp } from "lucide-react";
+import { useState } from "react";
 import { CartesianGrid, Line, LineChart, XAxis, YAxis } from "recharts";
+import { Button } from "~/components/ui/button";
 
 import {
   Card,
@@ -15,12 +17,14 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "~/components/ui/chart";
-import { type MonthlyData } from "~/lib/timeAggUtils";
+import { type TimeAggregatedData } from "~/lib/timeAggUtils";
 
 interface LineChartProps {
   actor: string;
-  followerStats: MonthlyData;
-  followStats: MonthlyData;
+  followerStats: TimeAggregatedData;
+  followStats: TimeAggregatedData;
+  weeklyFollowerStats: TimeAggregatedData;
+  weeklyFollowStats: TimeAggregatedData;
 }
 
 const chartConfig = {
@@ -46,31 +50,41 @@ export function LineChartComponent({
   actor,
   followerStats,
   followStats,
+  weeklyFollowerStats,
+  weeklyFollowStats,
 }: LineChartProps) {
-  // Convert months to array once and cache it
-  const monthsArray = Array.from(
-    new Set([...Object.keys(followerStats), ...Object.keys(followStats)])
+  const [viewMode, setViewMode] = useState<"monthly" | "weekly">("monthly");
+
+  const currentFollowerStats =
+    viewMode === "monthly" ? followerStats : weeklyFollowerStats;
+  const currentFollowStats =
+    viewMode === "monthly" ? followStats : weeklyFollowStats;
+
+  const timePeriodsArray = Array.from(
+    new Set([
+      ...Object.keys(currentFollowerStats),
+      ...Object.keys(currentFollowStats),
+    ])
   ).sort();
 
-  // Create chart data with forward fill in a single pass
-  const chartData = monthsArray.reduce(
-    (acc, month, index) => {
+  const chartData = timePeriodsArray.reduce(
+    (acc, period, index) => {
       const dataPoint = {
-        month,
-        followersChange: followerStats[month]?.change ?? 0,
-        followingChange: followStats[month]?.change ?? 0,
+        period,
+        followersChange: currentFollowerStats[period]?.change ?? 0,
+        followingChange: currentFollowStats[period]?.change ?? 0,
         followersCumTotal:
-          followerStats[month]?.cumTotal ??
+          currentFollowerStats[period]?.cumTotal ??
           (index > 0 ? acc[index - 1].followersCumTotal : 0),
         followingCumTotal:
-          followStats[month]?.cumTotal ??
+          currentFollowStats[period]?.cumTotal ??
           (index > 0 ? acc[index - 1].followingCumTotal : 0),
       };
       acc.push(dataPoint);
       return acc;
     },
     [] as Array<{
-      month: string;
+      period: string;
       followersChange: number;
       followingChange: number;
       followersCumTotal: number;
@@ -90,6 +104,22 @@ export function LineChartComponent({
           <span className="font-bold text-primary">{actor}</span>
         </CardTitle>
         <CardDescription>Monthly Growth Trend</CardDescription>
+        <div className="flex gap-2 mt-2">
+          <Button
+            variant={viewMode === "monthly" ? "default" : "outline"}
+            onClick={() => setViewMode("monthly")}
+            size="sm"
+          >
+            Monthly
+          </Button>
+          <Button
+            variant={viewMode === "weekly" ? "default" : "outline"}
+            onClick={() => setViewMode("weekly")}
+            size="sm"
+          >
+            Weekly
+          </Button>
+        </div>
       </CardHeader>
       <CardContent>
         <ChartContainer config={chartConfig}>
@@ -108,7 +138,7 @@ export function LineChartComponent({
               strokeDasharray="3 3"
             />
             <XAxis
-              dataKey="month"
+              dataKey="period"
               tickLine={false}
               axisLine={false}
               tickMargin={8}
@@ -163,7 +193,7 @@ export function LineChartComponent({
                 ? "No change"
                 : `Followers ${isPositiveTrend ? "up" : "down"} by ${Number(
                     trendText
-                  )} this month`}{" "}
+                  )} ${viewMode === "monthly" ? "month" : "week"}`}{" "}
               <TrendingUp
                 className={`h-4 w-4 ${
                   currentMonth === 0

@@ -9,7 +9,11 @@ import WarningMessageBox from "~/components/WarningMessageBox";
 import { getCachedStats, setCachedStats } from "~/lib/cacheHandler";
 import { getAgent } from "~/lib/client";
 import { getFollowers, getFollows } from "~/lib/follows";
-import { groupByYearMonth, type MonthlyData } from "~/lib/timeAggUtils";
+import {
+  groupByYearMonth,
+  groupByYearMonthWeek,
+  type TimeAggregatedData,
+} from "~/lib/timeAggUtils";
 
 export const meta: MetaFunction<typeof loader> = ({ data }) => {
   return [
@@ -35,8 +39,10 @@ export const meta: MetaFunction<typeof loader> = ({ data }) => {
 interface LoaderData {
   actor: string;
   error: string | null;
-  followerStats: MonthlyData;
-  followStats: MonthlyData;
+  followerStats: TimeAggregatedData;
+  followStats: TimeAggregatedData;
+  weeklyFollowerStats: TimeAggregatedData;
+  weeklyFollowStats: TimeAggregatedData;
   cached?: boolean;
 }
 
@@ -54,6 +60,8 @@ export const loader = async ({ params, context }: LoaderFunctionArgs) => {
       error: "Invalid handle. Maybe you're missing the `.bsky.social` part?",
       followerStats: {},
       followStats: {},
+      weeklyFollowerStats: {},
+      weeklyFollowStats: {},
       cached: false,
     };
   }
@@ -65,6 +73,8 @@ export const loader = async ({ params, context }: LoaderFunctionArgs) => {
       actor,
       followerStats: cachedData.followerStats,
       followStats: cachedData.followStats,
+      weeklyFollowerStats: cachedData.weeklyFollowerStats,
+      weeklyFollowStats: cachedData.weeklyFollowStats,
       error: null,
       cached: true,
     } satisfies LoaderData;
@@ -78,14 +88,27 @@ export const loader = async ({ params, context }: LoaderFunctionArgs) => {
 
     const followerStats = groupByYearMonth(followers);
     const followStats = groupByYearMonth(follows);
+    const weeklyFollowerStats = groupByYearMonthWeek(followers);
+    const weeklyFollowStats = groupByYearMonthWeek(follows);
 
     // Cache the new data
-    await setCachedStats(actor, { followerStats, followStats }, env);
+    await setCachedStats(
+      actor,
+      {
+        followerStats,
+        followStats,
+        weeklyFollowerStats,
+        weeklyFollowStats,
+      },
+      env
+    );
 
     return {
       actor,
       followerStats,
       followStats,
+      weeklyFollowerStats,
+      weeklyFollowStats,
       error: null,
       cached: false,
     } satisfies LoaderData;
@@ -105,14 +128,23 @@ export const loader = async ({ params, context }: LoaderFunctionArgs) => {
         "This handle doesn't seem to exist. Maybe you're missing the `.bsky.social` part?",
       followerStats: {},
       followStats: {},
+      weeklyFollowerStats: {},
+      weeklyFollowStats: {},
       cached: false,
     } satisfies LoaderData;
   }
 };
 
 export default function UserStats() {
-  const { actor, followerStats, followStats, error, cached } =
-    useLoaderData<typeof loader>();
+  const {
+    actor,
+    followerStats,
+    followStats,
+    weeklyFollowerStats,
+    weeklyFollowStats,
+    error,
+    cached,
+  } = useLoaderData<typeof loader>();
 
   const hasStats =
     Object.keys(followerStats).length > 0 ||
@@ -154,6 +186,8 @@ export default function UserStats() {
                   actor={actor}
                   followerStats={followerStats}
                   followStats={followStats}
+                  weeklyFollowerStats={weeklyFollowerStats}
+                  weeklyFollowStats={weeklyFollowStats}
                 />
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">

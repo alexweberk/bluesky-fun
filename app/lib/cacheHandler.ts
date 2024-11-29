@@ -1,8 +1,10 @@
-import type { MonthlyData } from "./timeAggUtils";
+import { type TimeAggregatedData } from "./timeAggUtils";
 
 export interface CacheData {
-  followerStats: MonthlyData;
-  followStats: MonthlyData;
+  followerStats: TimeAggregatedData;
+  followStats: TimeAggregatedData;
+  weeklyFollowerStats: TimeAggregatedData;
+  weeklyFollowStats: TimeAggregatedData;
   timestamp: number;
 }
 
@@ -35,7 +37,12 @@ export async function getCachedStats(
 
 export async function setCachedStats(
   actor: string,
-  data: { followerStats: MonthlyData; followStats: MonthlyData },
+  data: {
+    followerStats: TimeAggregatedData;
+    followStats: TimeAggregatedData;
+    weeklyFollowerStats: TimeAggregatedData;
+    weeklyFollowStats: TimeAggregatedData;
+  },
   env: Env
 ): Promise<void> {
   try {
