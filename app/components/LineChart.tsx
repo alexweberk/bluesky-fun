@@ -48,6 +48,12 @@ const chartConfig = {
   },
 } satisfies ChartConfig;
 
+const TIME_WINDOWS = {
+  monthly: 24, // months
+  weekly: 26, // weeks
+  daily: 60, // days
+} as const;
+
 export function LineChartComponent({
   actor,
   followerStats,
@@ -75,25 +81,54 @@ export function LineChartComponent({
       ? weeklyFollowStats
       : dailyFollowStats;
 
-  const timePeriodsArray = Array.from(
+  // Get all time periods and sort them
+  const allTimePeriodsArray = Array.from(
     new Set([
       ...Object.keys(currentFollowerStats),
       ...Object.keys(currentFollowStats),
     ])
   ).sort();
 
+  // Get the window size based on view mode
+  const windowSize = TIME_WINDOWS[viewMode];
+
+  // Take only the most recent periods based on window size
+  const timePeriodsArray = allTimePeriodsArray.slice(-windowSize);
+
+  // Filter chart data to only include the periods in our window
   const chartData = timePeriodsArray.reduce(
     (acc, period, index) => {
+      // Find the last cumulative total before our window
+      const lastCumTotal =
+        index === 0
+          ? {
+              followers: findLastCumTotal(
+                allTimePeriodsArray,
+                timePeriodsArray[0],
+                currentFollowerStats
+              ),
+              following: findLastCumTotal(
+                allTimePeriodsArray,
+                timePeriodsArray[0],
+                currentFollowStats
+              ),
+            }
+          : undefined;
+
       const dataPoint = {
         period,
         followersChange: currentFollowerStats[period]?.change ?? 0,
         followingChange: currentFollowStats[period]?.change ?? 0,
         followersCumTotal:
           currentFollowerStats[period]?.cumTotal ??
-          (index > 0 ? acc[index - 1].followersCumTotal : 0),
+          (index > 0
+            ? acc[index - 1].followersCumTotal
+            : lastCumTotal?.followers ?? 0),
         followingCumTotal:
           currentFollowStats[period]?.cumTotal ??
-          (index > 0 ? acc[index - 1].followingCumTotal : 0),
+          (index > 0
+            ? acc[index - 1].followingCumTotal
+            : lastCumTotal?.following ?? 0),
       };
       acc.push(dataPoint);
       return acc;
@@ -234,4 +269,22 @@ export function LineChartComponent({
       </CardFooter>
     </Card>
   );
+}
+
+function findLastCumTotal(
+  allPeriods: string[],
+  windowStart: string,
+  stats: TimeAggregatedData
+): number {
+  const startIndex = allPeriods.indexOf(windowStart);
+  if (startIndex <= 0) return 0;
+
+  // Look for the last available cumulative total before our window
+  for (let i = startIndex - 1; i >= 0; i--) {
+    const period = allPeriods[i];
+    if (stats[period]?.cumTotal) {
+      return stats[period].cumTotal;
+    }
+  }
+  return 0;
 }
