@@ -2,6 +2,7 @@ import type {
   ActionFunction,
   LinksFunction,
   LoaderFunction,
+  MetaFunction,
 } from "@remix-run/cloudflare";
 import { json } from "@remix-run/cloudflare";
 import {
@@ -18,7 +19,35 @@ import { getLikesCount, incrementLikes } from "~/lib/cacheHandler";
 import Footer from "./components/Footer";
 import "./globals.css";
 
+export const meta: MetaFunction = () => {
+  return [
+    { title: "Bluesky Stats" },
+    {
+      name: "description",
+      content:
+        "Get detailed insights into your follower and following trends over time",
+    },
+    {
+      property: "og:title",
+      content: "Bluesky Fun - Track Your Growth on Bluesky",
+    },
+    {
+      property: "og:description",
+      content:
+        "Get detailed insights into your follower and following trends over time. See how your Bluesky presence has evolved.",
+    },
+    {
+      property: "og:image",
+      content: "https://bluesky-fun.pages.dev/BlueskyFun.png",
+    },
+    { property: "og:image:width", content: "1200" },
+    { property: "og:image:height", content: "630" },
+    { name: "twitter:card", content: "summary_large_image" },
+  ];
+};
+
 export const links: LinksFunction = () => [
+  { rel: "icon", type: "image/x-icon", href: "/favicon.ico" },
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
   {
     rel: "preconnect",

@@ -13,12 +13,21 @@ import { groupByYearMonth, type MonthlyData } from "~/lib/timeAggUtils";
 
 export const meta: MetaFunction<typeof loader> = ({ data }) => {
   return [
-    { title: `${data?.actor || "User"} - Bluesky Stats` },
+    { title: `${data?.actor || "User"} | Bluesky Fun` },
     {
       name: "description",
       content: `Follower and following stats for ${
         data?.actor || "user"
       } on Bluesky.`,
+    },
+    {
+      property: "og:title",
+      content: "Bluesky Fun - Track Your Growth on Bluesky",
+    },
+    {
+      property: "og:description",
+      content:
+        "Get detailed insights into your follower and following trends over time. See how your Bluesky presence has evolved.",
     },
   ];
 };
