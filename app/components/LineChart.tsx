@@ -250,7 +250,7 @@ export function LineChartComponent({
                 ? "No change"
                 : `Followers ${isPositiveTrend ? "up" : "down"} by ${Number(
                     trendText
-                  )} this ${viewMode.slice(0, -2)}`}{" "}
+                  )} compared to the last period`}{" "}
               <TrendingUp
                 className={`h-4 w-4 ${
                   currentMonth === 0
