@@ -97,8 +97,51 @@ function groupByYearMonthWeek(
     }, {});
 }
 
+function groupByYearMonthDay(
+  items: { createdAt?: string }[]
+): TimeAggregatedData {
+  const countsByDay = items.reduce((acc: Record<string, number>, item) => {
+    if (!item.createdAt) return acc;
+
+    const date = new Date(item.createdAt);
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    const yearMonthDay = `${year}-${month}-${day}`;
+
+    acc[yearMonthDay] = (acc[yearMonthDay] || 0) + 1;
+    return acc;
+  }, {});
+
+  // Sort by yearMonthDay in ascending order for cumulative calculation
+  const sortedEntries = Object.entries(countsByDay).sort(([a], [b]) =>
+    a.localeCompare(b)
+  );
+
+  let cumulative = 0;
+  const result: TimeAggregatedData = {};
+
+  // Create the combined data structure
+  sortedEntries.forEach(([yearMonthDay, change]) => {
+    cumulative += change;
+    result[yearMonthDay] = {
+      change,
+      cumTotal: cumulative,
+    };
+  });
+
+  // Sort by yearMonthDay in descending order
+  return Object.entries(result)
+    .sort(([a], [b]) => b.localeCompare(a))
+    .reduce((obj: TimeAggregatedData, [key, value]) => {
+      obj[key] = value;
+      return obj;
+    }, {});
+}
+
 export {
   groupByYearMonth,
+  groupByYearMonthDay,
   groupByYearMonthWeek,
   type TimeAggregatedData,
   type TimeStats,

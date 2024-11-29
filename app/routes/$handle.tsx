@@ -1,16 +1,28 @@
-import type { LoaderFunctionArgs, MetaFunction } from "@remix-run/cloudflare";
-import { useLoaderData } from "@remix-run/react";
+import {
+  json,
+  LoaderFunctionArgs,
+  MetaFunction,
+  redirect,
+  type ActionFunctionArgs,
+} from "@remix-run/cloudflare";
+import { Form, useLoaderData } from "@remix-run/react";
 import { ExternalLink } from "lucide-react";
 import { ErrorMessageBox } from "~/components/ErrorMessageBox";
 import { LineChartComponent } from "~/components/LineChart";
 import { SearchForm } from "~/components/SearchForm";
 import StatsBox from "~/components/StatsBox";
+import { Button } from "~/components/ui/button";
 import WarningMessageBox from "~/components/WarningMessageBox";
-import { getCachedStats, setCachedStats } from "~/lib/cacheHandler";
+import {
+  clearCacheForActor,
+  getCachedStats,
+  setCachedStats,
+} from "~/lib/cacheHandler";
 import { getAgent } from "~/lib/client";
 import { getFollowers, getFollows } from "~/lib/follows";
 import {
   groupByYearMonth,
+  groupByYearMonthDay,
   groupByYearMonthWeek,
   type TimeAggregatedData,
 } from "~/lib/timeAggUtils";
@@ -43,6 +55,8 @@ interface LoaderData {
   followStats: TimeAggregatedData;
   weeklyFollowerStats: TimeAggregatedData;
   weeklyFollowStats: TimeAggregatedData;
+  dailyFollowerStats: TimeAggregatedData;
+  dailyFollowStats: TimeAggregatedData;
   cached?: boolean;
 }
 
@@ -62,6 +76,8 @@ export const loader = async ({ params, context }: LoaderFunctionArgs) => {
       followStats: {},
       weeklyFollowerStats: {},
       weeklyFollowStats: {},
+      dailyFollowerStats: {},
+      dailyFollowStats: {},
       cached: false,
     };
   }
@@ -75,6 +91,8 @@ export const loader = async ({ params, context }: LoaderFunctionArgs) => {
       followStats: cachedData.followStats,
       weeklyFollowerStats: cachedData.weeklyFollowerStats,
       weeklyFollowStats: cachedData.weeklyFollowStats,
+      dailyFollowerStats: cachedData.dailyFollowerStats,
+      dailyFollowStats: cachedData.dailyFollowStats,
       error: null,
       cached: true,
     } satisfies LoaderData;
@@ -90,6 +108,8 @@ export const loader = async ({ params, context }: LoaderFunctionArgs) => {
     const followStats = groupByYearMonth(follows);
     const weeklyFollowerStats = groupByYearMonthWeek(followers);
     const weeklyFollowStats = groupByYearMonthWeek(follows);
+    const dailyFollowerStats = groupByYearMonthDay(followers);
+    const dailyFollowStats = groupByYearMonthDay(follows);
 
     // Cache the new data
     await setCachedStats(
@@ -99,6 +119,8 @@ export const loader = async ({ params, context }: LoaderFunctionArgs) => {
         followStats,
         weeklyFollowerStats,
         weeklyFollowStats,
+        dailyFollowerStats,
+        dailyFollowStats,
       },
       env
     );
@@ -109,6 +131,8 @@ export const loader = async ({ params, context }: LoaderFunctionArgs) => {
       followStats,
       weeklyFollowerStats,
       weeklyFollowStats,
+      dailyFollowerStats,
+      dailyFollowStats,
       error: null,
       cached: false,
     } satisfies LoaderData;
@@ -130,10 +154,30 @@ export const loader = async ({ params, context }: LoaderFunctionArgs) => {
       followStats: {},
       weeklyFollowerStats: {},
       weeklyFollowStats: {},
+      dailyFollowerStats: {},
+      dailyFollowStats: {},
       cached: false,
     } satisfies LoaderData;
   }
 };
+
+export async function action({ request, params, context }: ActionFunctionArgs) {
+  const formData = await request.formData();
+  const intent = formData.get("intent");
+  const actor = params.handle;
+
+  if (!actor) {
+    throw new Error("No actor provided");
+  }
+
+  if (intent === "clear-cache") {
+    await clearCacheForActor(actor, context.cloudflare.env);
+    // Redirect to the same page to refresh data
+    return redirect(`/${actor}`);
+  }
+
+  return json({ error: "Invalid intent" }, { status: 400 });
+}
 
 export default function UserStats() {
   const {
@@ -142,6 +186,8 @@ export default function UserStats() {
     followStats,
     weeklyFollowerStats,
     weeklyFollowStats,
+    dailyFollowerStats,
+    dailyFollowStats,
     error,
     cached,
   } = useLoaderData<typeof loader>();
@@ -177,17 +223,35 @@ export default function UserStats() {
           {hasStats && (
             <div id="statsArea">
               <div className="bg-white rounded-lg shadow-sm space-y-8">
-                {cached && (
-                  <div className="text-sm text-gray-500 text-center mb-4">
-                    Showing cached data (updated within the last hour)
-                  </div>
-                )}
+                <div className="flex justify-between items-center px-4">
+                  {cached && (
+                    <div className="text-sm text-gray-500">
+                      Showing cached data (updated within the last hour)
+                    </div>
+                  )}
+                  {cached && (
+                    <Form method="post">
+                      <Button
+                        type="submit"
+                        name="intent"
+                        value="clear-cache"
+                        variant="outline"
+                        size="sm"
+                        className="text-red-500 hover:text-red-600 hover:bg-red-50"
+                      >
+                        Clear Cache
+                      </Button>
+                    </Form>
+                  )}
+                </div>
                 <LineChartComponent
                   actor={actor}
                   followerStats={followerStats}
                   followStats={followStats}
                   weeklyFollowerStats={weeklyFollowerStats}
                   weeklyFollowStats={weeklyFollowStats}
+                  dailyFollowerStats={dailyFollowerStats}
+                  dailyFollowStats={dailyFollowStats}
                 />
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">

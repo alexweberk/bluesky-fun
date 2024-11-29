@@ -25,6 +25,8 @@ interface LineChartProps {
   followStats: TimeAggregatedData;
   weeklyFollowerStats: TimeAggregatedData;
   weeklyFollowStats: TimeAggregatedData;
+  dailyFollowerStats: TimeAggregatedData;
+  dailyFollowStats: TimeAggregatedData;
 }
 
 const chartConfig = {
@@ -52,13 +54,26 @@ export function LineChartComponent({
   followStats,
   weeklyFollowerStats,
   weeklyFollowStats,
+  dailyFollowerStats,
+  dailyFollowStats,
 }: LineChartProps) {
-  const [viewMode, setViewMode] = useState<"monthly" | "weekly">("monthly");
+  const [viewMode, setViewMode] = useState<"monthly" | "weekly" | "daily">(
+    "monthly"
+  );
 
   const currentFollowerStats =
-    viewMode === "monthly" ? followerStats : weeklyFollowerStats;
+    viewMode === "monthly"
+      ? followerStats
+      : viewMode === "weekly"
+      ? weeklyFollowerStats
+      : dailyFollowerStats;
+
   const currentFollowStats =
-    viewMode === "monthly" ? followStats : weeklyFollowStats;
+    viewMode === "monthly"
+      ? followStats
+      : viewMode === "weekly"
+      ? weeklyFollowStats
+      : dailyFollowStats;
 
   const timePeriodsArray = Array.from(
     new Set([
@@ -103,7 +118,7 @@ export function LineChartComponent({
           Follows & Followers Growth for{" "}
           <span className="font-bold text-primary">{actor}</span>
         </CardTitle>
-        <CardDescription>Monthly Growth Trend</CardDescription>
+        <CardDescription>Growth Trend</CardDescription>
         <div className="flex gap-2 mt-2">
           <Button
             variant={viewMode === "monthly" ? "default" : "outline"}
@@ -118,6 +133,13 @@ export function LineChartComponent({
             size="sm"
           >
             Weekly
+          </Button>
+          <Button
+            variant={viewMode === "daily" ? "default" : "outline"}
+            onClick={() => setViewMode("daily")}
+            size="sm"
+          >
+            Daily
           </Button>
         </div>
       </CardHeader>
@@ -193,7 +215,7 @@ export function LineChartComponent({
                 ? "No change"
                 : `Followers ${isPositiveTrend ? "up" : "down"} by ${Number(
                     trendText
-                  )} ${viewMode === "monthly" ? "month" : "week"}`}{" "}
+                  )} this ${viewMode.slice(0, -2)}`}{" "}
               <TrendingUp
                 className={`h-4 w-4 ${
                   currentMonth === 0
@@ -205,7 +227,7 @@ export function LineChartComponent({
               />
             </div>
             <div className="flex items-center gap-2 leading-none text-muted-foreground">
-              Showing monthly cumulative totals over time
+              Showing {viewMode} cumulative totals over time
             </div>
           </div>
         </div>

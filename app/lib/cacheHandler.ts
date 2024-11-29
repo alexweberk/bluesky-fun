@@ -5,6 +5,8 @@ export interface CacheData {
   followStats: TimeAggregatedData;
   weeklyFollowerStats: TimeAggregatedData;
   weeklyFollowStats: TimeAggregatedData;
+  dailyFollowerStats: TimeAggregatedData;
+  dailyFollowStats: TimeAggregatedData;
   timestamp: number;
 }
 
@@ -42,6 +44,8 @@ export async function setCachedStats(
     followStats: TimeAggregatedData;
     weeklyFollowerStats: TimeAggregatedData;
     weeklyFollowStats: TimeAggregatedData;
+    dailyFollowerStats: TimeAggregatedData;
+    dailyFollowStats: TimeAggregatedData;
   },
   env: Env
 ): Promise<void> {
@@ -76,5 +80,18 @@ export async function incrementLikes(env: Env): Promise<number | null> {
   } catch (error) {
     console.error("Error incrementing likes:", error);
     return null;
+  }
+}
+
+export async function clearCacheForActor(
+  actor: string,
+  env: Env
+): Promise<void> {
+  try {
+    const cacheKey = `stats-${actor}`;
+    await env.BLUESKY_FUN_KV.delete(cacheKey);
+  } catch (error) {
+    console.error("Error clearing cache:", error);
+    throw error;
   }
 }
