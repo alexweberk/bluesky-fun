@@ -1,47 +1,27 @@
-# Welcome to Remix + Cloudflare!
+# Bluesky Fun
 
-- 📖 [Remix docs](https://remix.run/docs)
-- 📖 [Remix Cloudflare docs](https://remix.run/guides/vite#cloudflare)
+A web application for tracking and visualizing Bluesky social network statistics and growth metrics.
 
-## Development
+## Features
 
-Run the dev server:
+- Track follower growth over time
+- Visualize following/follower ratios
+- Daily, weekly and monthly statistics
+- Caching for improved performance
 
-```sh
-npm run dev
+## Prerequisites
+
+- Node.js >= 20.0.0
+- Cloudflare account
+- Bluesky account (for API access)
+
+## Environment Variables
+
+Create a `.dev.vars` file with:
+
+```
+BLUESKY_USERNAME=
+BLUESKY_PASSWORD=
 ```
 
-To run Wrangler:
-
-```sh
-npm run build
-npm run start
-```
-
-## Typegen
-
-Generate types for your Cloudflare bindings in `wrangler.toml`:
-
-```sh
-npm run typegen
-```
-
-You will need to rerun typegen whenever you make changes to `wrangler.toml`.
-
-## Deployment
-
-First, build your app for production:
-
-```sh
-npm run build
-```
-
-Then, deploy your app to Cloudflare Pages:
-
-```sh
-npm run deploy
-```
-
-## Styling
-
-This template comes with [Tailwind CSS](https://tailwindcss.com/) already configured for a simple default starting experience. You can use whatever css framework you prefer. See the [Vite docs on css](https://vitejs.dev/guide/features.html#css) for more information.
+You will also have to add it to your Cloudflare account secrets.

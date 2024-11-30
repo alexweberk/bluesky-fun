@@ -5,7 +5,6 @@ type TimeStats = {
 
 type TimeAggregatedData = Record<string, TimeStats>;
 
-/** @internal */
 function getWeekNumber(date: Date): string {
   const d = new Date(date);
   d.setHours(0, 0, 0, 0);
